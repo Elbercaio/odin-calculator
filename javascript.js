@@ -26,6 +26,7 @@ function operator(op, num1, num2) {
       if (num2 === 0) {
         pressAC();
         alert("Divisão por 0 é uma pessima ideia!");
+        return "0";
       }
       return divide(num1, num2);
   }
@@ -33,8 +34,9 @@ function operator(op, num1, num2) {
 
 function updateDisplay(e) {
   let character = "";
-  if (typeof e != "string") {
+  if (typeof e == "object") {
     character = e.target.textContent;
+  } else if (typeof e == "string" && (e === "NaN" || e === "Infinity")) {
   } else {
     character = e;
   }
@@ -46,8 +48,10 @@ function updateDisplay(e) {
   ) {
     if (operation !== "") {
       pressEqual();
+      operation = character;
+      displayValue = operation;
     } else {
-      operation = character.slice(0);
+      operation = character;
       storedValues.push(displayValue);
       displayValue = operation;
     }
@@ -58,9 +62,9 @@ function updateDisplay(e) {
     displayValue.includes("/") ||
     displayValue.includes("*")
   ) {
-    displayValue = character;
+    displayValue = String(character);
   } else {
-    displayValue += character;
+    displayValue += String(character);
   }
   display.textContent = displayValue;
 }
@@ -80,7 +84,7 @@ function pressEqual() {
       parseFloat(storedValues[storedValues.length - 2]),
       parseFloat(storedValues[storedValues.length - 1])
     );
-    displayValue = result;
+    displayValue = String(result);
     display.textContent = displayValue;
     storedValues.push(displayValue);
     operation = "";
@@ -120,11 +124,18 @@ document.onkeydown = function (e) {
     updateDisplay(e.key);
   } else if (e.key === "Enter" || e.key === "") {
     pressEqual();
-  } else if (
-    e.key === "Delete" ||
-    e.key === "Backspace" ||
-    e.key === "Escape"
-  ) {
+  } else if (e.key === "Delete" || e.key === "Escape") {
     pressAC();
+  } else if (e.key === "Backspace") {
+    displayValue = displayValue.split("");
+    displayValue.pop();
+    if (displayValue.length === 1) {
+      displayValue = displayValue[0];
+    } else if (displayValue.length === 0) {
+      displayValue = "0";
+    } else {
+      displayValue = displayValue.join("");
+    }
+    display.textContent = displayValue;
   }
 };
