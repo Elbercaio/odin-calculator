@@ -23,28 +23,74 @@ function operator(op, num1, num2) {
     case "*":
       return multiply(num1, num2);
     case "/":
+      if (num2 === 0) {
+        pressAC();
+        alert("Divisão por 0 é uma pessima ideia!");
+      }
       return divide(num1, num2);
   }
 }
 
 function updateDisplay(e) {
+  let character = "";
   if (typeof e != "string") {
-    console.log(e.target);
-    displayValue += e.target.textContent;
+    character = e.target.textContent;
   } else {
-    displayValue += e;
+    character = e;
+  }
+  if (
+    character.includes("-") ||
+    character.includes("+") ||
+    character.includes("/") ||
+    character.includes("*")
+  ) {
+    if (operation !== "") {
+      pressEqual();
+    } else {
+      operation = character.slice(0);
+      storedValues.push(displayValue);
+      displayValue = operation;
+    }
+  } else if (
+    displayValue === "0" ||
+    displayValue.includes("-") ||
+    displayValue.includes("+") ||
+    displayValue.includes("/") ||
+    displayValue.includes("*")
+  ) {
+    displayValue = character;
+  } else {
+    displayValue += character;
   }
   display.textContent = displayValue;
 }
+
 function pressAC() {
   displayValue = "0";
+  operation = "";
   display.textContent = displayValue;
-}
-function pressEqual() {
-  let components = displayValue.split(" ");
+  storedValues = [];
 }
 
-let displayValue = "";
+function pressEqual() {
+  if (operation !== "") {
+    storedValues.push(displayValue);
+    let result = operator(
+      operation,
+      parseFloat(storedValues[storedValues.length - 2]),
+      parseFloat(storedValues[storedValues.length - 1])
+    );
+    displayValue = result;
+    display.textContent = displayValue;
+    storedValues.push(displayValue);
+    operation = "";
+  }
+}
+
+let storedValues = [];
+let operation = "";
+
+let displayValue = "0";
 const display = document.querySelector(".display");
 const numbers = document.querySelectorAll(".number");
 numbers.forEach((number) => {
@@ -63,10 +109,15 @@ equal.addEventListener("click", pressEqual);
 
 document.onkeydown = function (e) {
   e = e || window.event;
-  if (!isNaN(e.key) || e.key === ".") {
+  if (
+    !isNaN(e.key) ||
+    e.key === "." ||
+    e.key === "+" ||
+    e.key === "-" ||
+    e.key === "/" ||
+    e.key === "*"
+  ) {
     updateDisplay(e.key);
-  } else if (e.key === "+" || e.key === "-" || e.key === "/" || e.key === "*") {
-    updateDisplay(` ${e.key} `);
   } else if (e.key === "Enter" || e.key === "") {
     pressEqual();
   } else if (
