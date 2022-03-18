@@ -15,35 +15,42 @@ function divide(num1, num2) {
 }
 
 function operator(op, num1, num2) {
+  let result = 0;
   switch (op) {
     case "+":
-      return add(num1, num2);
+      result = add(num1, num2);
     case "-":
-      return subtract(num1, num2);
+      result = subtract(num1, num2);
     case "*":
-      return multiply(num1, num2);
-    case "/":
+      result = multiply(num1, num2);
+    case "÷":
       if (num2 === 0) {
         pressAC();
         alert("Divisão por 0 é uma pessima ideia!");
-        return "0";
       }
-      return divide(num1, num2);
+      result = divide(num1, num2);
   }
+  return Math.round((result + Number.EPSILON) * 100) / 100;
 }
 
 function updateDisplay(e) {
   let character = "";
-  if (typeof e == "object") {
+  if (typeof e === "object") {
     character = e.target.textContent;
-  } else if (typeof e == "string" && (e === "NaN" || e === "Infinity")) {
   } else {
-    character = e;
+    if (e == "/") {
+      character = "÷";
+    } else {
+      character = e;
+    }
+  }
+  if (character.includes(".") && displayValue.includes(".")) {
+    return;
   }
   if (
     character.includes("-") ||
     character.includes("+") ||
-    character.includes("/") ||
+    character.includes("÷") ||
     character.includes("*")
   ) {
     if (operation !== "") {
@@ -59,7 +66,7 @@ function updateDisplay(e) {
     displayValue === "0" ||
     displayValue.includes("-") ||
     displayValue.includes("+") ||
-    displayValue.includes("/") ||
+    displayValue.includes("÷") ||
     displayValue.includes("*")
   ) {
     displayValue = String(character);
